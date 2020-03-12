@@ -1,0 +1,8 @@
+# Docker database location
+wp-db/*
+
+# Wordpress files
+wp-app/.htaccess
+wp-app/wp-config.php
+wp-app/wp-content/cache/*
+wp-app/wp-content/wp-cache-config.php

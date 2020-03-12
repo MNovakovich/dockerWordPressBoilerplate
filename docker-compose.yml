@@ -1,0 +1,60 @@
+# https://docs.docker.com/compose/compose-file/
+version: "3.7"
+
+services:
+  # Database, https://hub.docker.com/_/mysql/
+  db:
+    image: mysql:5.7.29
+    ports:
+      - ${MYSQL_PORT}:3306
+    volumes:
+      - ./config/mysql_import.cnf:/etc/mysql/conf.d/mysql_import.cnf
+      - ./wp-db:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_USER: "${MYSQL_ROOT_USER}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${WORDPRESS_DB_NAME}"
+      MYSQL_USER: "${WORDPRESS_DB_USER}"
+      MYSQL_PASSWORD: "${WORDPRESS_DB_PASSWORD}"
+    networks:
+      - wpsite
+
+  # Wordpresss, https://hub.docker.com/_/wordpress/
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:php7.3-apache # php 7.3.14
+    ports:
+      - 8080:80
+    restart: always
+    volumes:
+      - ./wp-app:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: db:${MYSQL_PORT}
+      WORDPRESS_DB_USER: "${WORDPRESS_DB_USER}"
+      WORDPRESS_DB_PASSWORD: "${WORDPRESS_DB_PASSWORD}"
+      WORDPRESS_DB_NAME: "${WORDPRESS_DB_NAME}"
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', ${LOCAL_DEV_URL});
+        define('WP_SITEURL', ${LOCAL_DEV_URL});
+    networks:
+      - wpsite
+
+  # phpmyadmin, https://hub.docker.com/r/phpmyadmin/phpmyadmin
+  pma:
+    image: phpmyadmin/phpmyadmin:4.9.4
+    ports:
+      - 8000:80
+    environment:
+      PMA_HOST: db
+      PMA_PORT: ${MYSQL_PORT}
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    restart: always
+    volumes:
+      - ./config/php_upload.ini:/usr/local/etc/php/conf.d/php_upload.ini
+    networks:
+      - wpsite
+
+networks:
+  wpsite:

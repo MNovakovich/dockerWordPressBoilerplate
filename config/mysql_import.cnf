@@ -1,0 +1,6 @@
+
+# Fixing potential trouble with large .sql import files
+
+[mysqld]
+max_allowed_packet=256M
+innodb_log_file_size=256M
