@@ -10,7 +10,7 @@
 # Login to WP Dashboard:
 http://localhost:8080/wp-admin
 user: admin
-password: Boljevrucepivo1@
+password: 111111
 
 
 # Phpmyadmin:
